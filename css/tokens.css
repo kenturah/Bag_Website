@@ -1,0 +1,6 @@
+/* DESIGN TOKENS: change the brand colours here and the whole site updates.
+   Palette: Midnight Truffle + Whipped Cream.
+   --brand #24202B Midnight Espresso | --brand-deep #3A251C Dark Truffle
+   --cognac #A97061 Warm Cognac (decoration) | --accent #9A604F deeper cognac (buttons, text)
+   --champagne #FFF0DF Champagne Glow | --bg #FFF8F0 page background */
+:root{--brand:#24202B;--brand-deep:#3A251C;--header-bg:#F7F2EC;--ink:#24202B;--ink-soft:#6F6058;--bg:#FFF8F0;--card:#FFFFFF;--line:#EADBCB;--danger:#8C3A2E;--gold:#B98B6A;--teal:#6B4F3F;--accent:#9A604F;--cognac:#A97061;--champagne:#FFF0DF;--wa:#1F7A4A;--max-w:1280px;}
