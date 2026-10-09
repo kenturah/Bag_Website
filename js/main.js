@@ -1,6 +1,17 @@
 "use strict";
 /* MAIN: tabs, product grid, product detail sheet, checkout sheets and start-up. Load this file last. */
-var TABS = ["Home", "Bags", "Appliances", "New", "Deals"];
+// Tabs are built from the categories that actually have products, so a new category shows up by itself.
+function tabList() {
+  var preferred = ["Bags", "Accessories", "Appliances"];
+  var cats = [];
+  PRODUCTS.forEach(function (p) { if (cats.indexOf(p.category) === -1) cats.push(p.category); });
+  cats.sort(function (a, b) {
+    var ia = preferred.indexOf(a), ib = preferred.indexOf(b);
+    if (ia === -1) ia = 99; if (ib === -1) ib = 99;
+    return ia !== ib ? ia - ib : a.localeCompare(b);
+  });
+  return ["Home"].concat(cats, ["New", "Deals"]);
+}
 
 function matchesCategory(p) {
     if (state.category === "Home") return true;
@@ -30,8 +41,8 @@ window.goCategory = goCategory;
 
 function renderTabs() {
     var el = document.getElementById("tabsInner");
-    el.innerHTML = TABS.map(function (t) {
-      return '<button class="tab' + (state.category === t ? " active" : "") + '" data-tab="' + t + '">' + t + "</button>";
+    el.innerHTML = tabList().map(function (t) {
+      return '<button class="tab' + (state.category === t ? " active" : "") + '" data-tab="' + esc(t) + '">' + esc(t) + "</button>";
     }).join("");
     el.querySelectorAll(".tab").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -58,14 +69,14 @@ function renderProducts() {
       var stockClass = soldOut ? "out" : (left <= 3 ? "low" : "");
       var stockText = soldOut ? "Sold out" : (left <= 3 ? "Only " + left + " left" : left + " in stock");
       return (
-        '<div class="card' + (soldOut ? " soldout" : "") + '" data-id="' + p.id + '">' +
+        '<div class="card' + (soldOut ? " soldout" : "") + '" data-id="' + esc(p.id) + '">' +
           '<div class="card-media">' + badge + mediaFor(p) +
-            '<button class="fab-add" data-id="' + p.id + '" aria-label="Add to cart"' + (soldOut ? " disabled" : "") + '>' +
+            '<button class="fab-add" data-id="' + esc(p.id) + '" aria-label="Add to cart"' + (soldOut ? " disabled" : "") + '>' +
               '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
             "</button>" +
           "</div>" +
           '<div class="card-info">' +
-            '<div class="name">' + p.name + "</div>" +
+            '<div class="name">' + esc(p.name) + "</div>" +
             '<div class="price-row"><span class="price">' + p.price.toLocaleString("en-NG") + "</span>" +
               (p.was ? '<span class="was">' + p.was.toLocaleString("en-NG") + "</span>" : "") +
             "</div>" +
@@ -83,7 +94,8 @@ function renderProducts() {
     });
 
     grid.querySelectorAll(".fab-add:not([disabled])").forEach(function (btn) {
-      btn.addEventListener("click", function () {
+      btn.addEventListener("click", function (ev) {
+        ev.stopPropagation(); // do not let this tap also open the product details
         addToCart(btn.getAttribute("data-id"));
         btn.classList.add("added");
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -106,11 +118,11 @@ function openProductDetail(id) {
     function bodyHtml(qty) {
       return (
         '<div class="pd-media">' + mediaFor(p) + "</div>" +
-        '<div class="pd-name">' + p.name + "</div>" +
+        '<div class="pd-name">' + esc(p.name) + "</div>" +
         '<div class="pd-price-row"><span class="price">' + money(p.price) + "</span>" +
           (p.was ? '<span class="was">' + money(p.was) + "</span>" : "") +
         "</div>" +
-        '<p class="pd-desc">' + describe(p) + "</p>" +
+        '<p class="pd-desc">' + esc(describe(p)) + "</p>" +
         '<div class="pd-stock ' + stockClass + '">' + stockText + "</div>" +
         (soldOut ? "" : (
           '<div class="pd-qty-row">' +
@@ -216,12 +228,14 @@ if (footerYearEl) footerYearEl.textContent = new Date().getFullYear();
 
 document.getElementById("payWaBtn").addEventListener("click", function () {
     if (cartCount() === 0) return;
+    if (sb && dbOnline) { startCheckout("cod"); return; }
     window.open(waLink(orderLines("Payment: on delivery")), "_blank");
     closeCart();
   });
 
 document.getElementById("payTransferBtn").addEventListener("click", function () {
     if (cartCount() === 0) return;
+    if (sb && dbOnline) { startCheckout("transfer"); return; }
     closeCart();
     openSheet("Pay by Bank Transfer", (
       '<p>Transfer <strong>' + money(cartTotal()) + '</strong> to the account below, then tap "I\'ve sent it" so we can confirm and start packing your order.</p>' +
@@ -246,6 +260,7 @@ document.getElementById("payTransferBtn").addEventListener("click", function () 
 
 document.getElementById("payCardBtn").addEventListener("click", function () {
     if (cartCount() === 0) return;
+    if (sb && dbOnline && CONFIG.cardPaymentLink) { startCheckout("card"); return; }
     closeCart();
     if (CONFIG.cardPaymentLink) {
       openSheet("Pay with Card", (
@@ -273,8 +288,12 @@ document.querySelectorAll("[data-go]").forEach(function (b) {
 document.querySelectorAll("[data-brand]").forEach(function (el) { el.textContent = CONFIG.brandName; });
 document.title = CONFIG.brandName + " \u2014 Bags & Home Appliances";
 
-renderTabs();
-
-renderProducts();
-
 renderCart();
+if (sb) {
+  renderTabs();
+  document.getElementById("productGrid").innerHTML = '<div class="empty-state"><h3>Loading products…</h3></div>';
+  refreshProducts().then(function () { renderTabs(); renderProducts(); renderCart(); });
+} else {
+  renderTabs();
+  renderProducts();
+}

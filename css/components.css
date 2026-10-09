@@ -344,6 +344,7 @@ header.top{--header-bg:#FFFFFF;--ink:#24202B;--ink-soft:#6F6058;--bg:#FFF8F0;--c
   padding: 12px 14px;
   transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
 }
+
 @media (hover: hover) {
   .pay-option.pay-card:hover {
     box-shadow: 0 14px 30px rgba(58, 37, 28, 0.14);
@@ -351,3 +352,44 @@ header.top{--header-bg:#FFFFFF;--ink:#24202B;--ink-soft:#6F6058;--bg:#FFF8F0;--c
     border-color: var(--cognac);
   }
 }
+
+@media (hover: hover) {
+  .pay-option:not(.pay-card):hover { 
+    background: var(--champagne); 
+    border-color: var(--cognac); 
+  }
+
+  .hero-cta .solid:hover { 
+    background: #fff; 
+  }
+
+  .hero-cta .ghost:hover { 
+    background: rgba(255, 240, 223, .1); 
+    border-color: #FFF0DF; 
+  }
+
+  .fab-add:hover { 
+    background: var(--brand); 
+    border-color: var(--brand); 
+  }
+
+  .tab:hover { 
+    color: var(--accent); 
+  }
+
+  .qty-btn:hover { 
+    border-color: var(--cognac); 
+  }
+}
+
+/* v4: checkout form and order confirmation */
+.co-form .field{margin-bottom:12px}
+.co-form label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--ink)}
+.co-form .opt{font-weight:400;color:var(--ink-soft)}
+.co-form input,.co-form textarea{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#24202B}
+.co-form textarea{min-height:76px;resize:vertical}
+.co-form input:focus,.co-form textarea:focus{outline:2px solid var(--cognac);outline-offset:1px}
+.form-error{color:var(--danger);font-size:14px;margin:8px 0;min-height:1px}
+.order-done{text-align:center;margin:4px 0 14px}
+.order-no{font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:600;color:#3A251C;letter-spacing:.04em}
+.track-link{display:block;text-align:center;margin-top:14px;font-weight:600;color:var(--accent);text-decoration:underline}

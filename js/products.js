@@ -1,17 +1,22 @@
 "use strict";
 /* PRODUCTS: the product list, the SVG fallback icons, product descriptions and image helper.
    To add a product: put its photo in images/products/<bags|appliances>/ and add a line to PRODUCTS. */
+// Makes any text safe to put inside HTML (owner-typed product names, descriptions, photo links).
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 var PRODUCTS = [
     { id: "bag1", name: "Ivory Teddy-Embossed Boston Bag", category: "Bags", price: 13500, tag: "new", img: "images/products/bags/bag1.webp", stock: 10 },
-    { id: "bag2", name: "Purple Floral Patent Tote &amp; Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag2.webp", stock: 5 },
+    { id: "bag2", name: "Purple Floral Patent Tote & Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag2.webp", stock: 5 },
     { id: "bag3", name: "Burgundy Woven Knot Shoulder Bag", category: "Bags", price: 16800, tag: "deal", was: 20500, img: "images/products/bags/bag3.webp", stock: 7 },
     { id: "bag4", name: "Tan Mini Top-Handle Satchel", category: "Bags", price: 9200, tag: null, img: "images/products/bags/bag4.webp", stock: 12 },
-    { id: "bag5", name: "Navy Colourblock Tote &amp; Mini Bag Set", category: "Bags", price: 24000, tag: null, img: "images/products/bags/bag5.webp", stock: 6 },
+    { id: "bag5", name: "Navy Colourblock Tote & Mini Bag Set", category: "Bags", price: 24000, tag: null, img: "images/products/bags/bag5.webp", stock: 6 },
     { id: "bag6", name: "Rosewood Quilted 3-Piece Bag Set", category: "Bags", price: 22500, tag: "new", img: "images/products/bags/bag6.webp", stock: 8 },
-    { id: "bag7", name: "Navy Floral Patent Tote &amp; Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag7.webp", stock: 4 },
+    { id: "bag7", name: "Navy Floral Patent Tote & Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag7.webp", stock: 4 },
     { id: "bag8", name: "Cognac Woven Knot Shoulder Bag", category: "Bags", price: 16800, tag: null, img: "images/products/bags/bag8.webp", stock: 9 },
-    { id: "bag9", name: "Emerald Floral Patent Tote &amp; Purse Set", category: "Bags", price: 27500, tag: "new", img: "images/products/bags/bag9.webp", stock: 3 },
-    { id: "bag10", name: "Black Floral Patent Tote &amp; Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag10.webp", stock: 6 },
+    { id: "bag9", name: "Emerald Floral Patent Tote & Purse Set", category: "Bags", price: 27500, tag: "new", img: "images/products/bags/bag9.webp", stock: 3 },
+    { id: "bag10", name: "Black Floral Patent Tote & Purse Set", category: "Bags", price: 27500, tag: null, img: "images/products/bags/bag10.webp", stock: 6 },
     { id: "bag11", name: "Espresso Woven Knot Shoulder Bag", category: "Bags", price: 16800, tag: null, img: "images/products/bags/bag11.webp", stock: 0 },
     { id: "bag12", name: "Emerald Pleated Satin Clutch", category: "Bags", price: 14500, tag: null, img: "images/products/bags/bag12.webp", stock: 11 },
     { id: "bag13", name: "Silver Pleated Satin Clutch", category: "Bags", price: 14500, tag: "new", img: "images/products/bags/bag13.webp", stock: 13 },
@@ -104,6 +109,7 @@ var DESC = [
   ];
 
 function describe(p) {
+    if (p.description) return p.description;
     var n = p.name.toLowerCase();
     for (var i = 0; i < DESC.length; i++) { if (n.indexOf(DESC[i][0]) !== -1) return DESC[i][1]; }
     return p.category === "Bags" ? "A carefully chosen bag for everyday use." : "A practical appliance for everyday home use.";
@@ -111,7 +117,7 @@ function describe(p) {
 
 function mediaFor(p) {
     if (p.img) {
-      return '<img src="' + p.img + '" alt="' + p.name.replace(/"/g, "&quot;") + '" loading="lazy">';
+      return '<img src="' + esc(p.img) + '" alt="' + esc(p.name) + '" loading="lazy">';
     }
     var gid = "g_" + p.id;
     return (
